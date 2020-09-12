@@ -1,7 +1,7 @@
 # GooglePlay_RankingList
 Puppeteer: GooglePlayのランキングページを元に、ランキング一覧(CSV)を作成する
 
-Google Playのランキング情報をCSVファイル化します。
+Google Playのランキング情報をPuppeteerを使ってCSVファイル化します。
 出力する情報は、以下の4つです。
 
 - アプリ名
