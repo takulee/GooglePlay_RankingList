@@ -70,12 +70,43 @@ async function makeList(browser, URLList){
 			// 提供元
 			let appPublisher = await (await (await appArray[appIdx].$('div[class="KoLSrc"]')).getProperty('textContent')).jsonValue();
 
-			// アプリのカテゴリ
+			// アプリの詳細
 			let appPage = await browser.newPage();
 			await appPage.goto(appAnker);
+			await appPage.waitForSelector('div[jsname="Gvbqzc"]');
 
 			// アプリのカテゴリを取得する
 			let appCategory = await (await (await (await appPage.$('div[class="qQKdcc"]')).$$('span'))[1].getProperty('textContent')).jsonValue();
+
+			// アプリの更新日と現在のバージョンを取得する
+			let appAdditionalInfo = await appPage.$$('div[class="hAyfc"]');
+			let appAdditionalInfoName = "";
+			let appUpdate = "";
+			let appVersion = "";
+
+			for (let counter = 0; counter < appAdditionalInfo.length; counter++){
+				appAdditionalInfoName = await (await (await appAdditionalInfo[counter].$('div[class="BgcNfc"]')).getProperty('textContent')).jsonValue();
+				if (appAdditionalInfoName == "更新日"){
+					appUpdate = await (await (await appAdditionalInfo[counter].$('span[class="htlgb"]')).getProperty('textContent')).jsonValue();
+					break;
+				}
+			}
+
+			if (appUpdate == ""){
+				appUpdate = "-";
+			}
+
+			for (let counter = 0; counter < appAdditionalInfo.length; counter++){
+				appAdditionalInfoName = await (await (await appAdditionalInfo[counter].$('div[class="BgcNfc"]')).getProperty('textContent')).jsonValue();
+				if (appAdditionalInfoName == "現在のバージョン"){
+					appVersion = await (await (await appAdditionalInfo[counter].$('span[class="htlgb"]')).getProperty('textContent')).jsonValue();
+					break;
+				}
+			}
+
+			if (appVersion == ""){
+				appVersion = "-";
+			}
 
 			await appPage.close();
 
@@ -83,10 +114,12 @@ console.log(appAnker);
 console.log(appName);
 console.log(appPublisher);
 console.log(appCategory);
+console.log(appUpdate);
+console.log(appVersion);
 
 			// アプリ情報をCSVに保存
 			fs.appendFile(path.join(__dirname, "GooglePlay_RankingList.csv"),
-				"\"" + URLList[0] + "\"," + String(appIdx + 1) + ",\"" + appName + "\",\"" + appPublisher + "\",\"" + appCategory + "\"\n", (error) => {
+				"\"" + URLList[0] + "\"," + String(appIdx + 1) + ",\"" + appName + "\",\"" + appPublisher + "\",\"" + appCategory + "\",\"" + appUpdate+ "\",\"" + appVersion + "\",\"" + appAnker + "\"\n", (error) => {
 				if (error){
 					console.error(error);
 				}
